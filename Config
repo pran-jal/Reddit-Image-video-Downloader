@@ -1,0 +1,14 @@
+import os
+
+client_id = "YOUR_CLIENT_ID"
+client_secret="YOUR_CLIENT_SECRET"
+user_agent="YOUR_APP_NAME"
+username="YOUR_REDDIT_USERNAME"       # not required
+password="YOUR_PASSWORD"               # not required
+POST_SEARCH_AMOUNT = 20
+by  = "new"         # choose from "new", "hot", "top", "rising", "controversial", "gilded"
+header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0"}
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+image_path = os.path.join(dir_path, "images/")
+video_path = os.path.join(dir_path, "video/")

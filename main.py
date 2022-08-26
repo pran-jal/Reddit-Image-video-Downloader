@@ -5,29 +5,35 @@ import subprocess
 import os
 import database
 
+from sub_list import *
 from config import *
 
 
-POST_SEARCH_AMOUNT = 20
-by  = ["new", "hot", "top", "rising"]
-header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0"}
-dir_path = os.path.dirname(os.path.realpath(__file__))
-image_path = os.path.join(dir_path, "images/")
 CHECK_FOLDER = os.path.isdir(image_path)
 if not CHECK_FOLDER:
     os.makedirs(image_path)
-video_path = os.path.join(dir_path, "video/")
+
 CHECK_FOLDER = os.path.isdir(video_path)
 if not CHECK_FOLDER:
     os.makedirs(video_path)
 reddit = praw.Reddit(client_id=client_id, client_secret=client_secret, user_agent=user_agent,)
-subs = open("sub_list.csv", "r")
 
+def sorted_sub(sub):
+    if sort_by == "new":
+        return reddit.subreddit(sub).new(limit=POST_SEARCH_AMOUNT)
+    elif sort_by == "top":
+        return reddit.subreddit(sub).top(limit=POST_SEARCH_AMOUNT)
+    elif sort_by == "hot":
+        return reddit.subreddit(sub).hot(limit=POST_SEARCH_AMOUNT)
+    elif sort_by == "rising":
+        return reddit.subreddit(sub).rising(limit=POST_SEARCH_AMOUNT)
+    elif sort_by == "gilded":
+        return reddit.subreddit(sub).gilded(limit=POST_SEARCH_AMOUNT)
+    elif sort_by == "controversial":
+        return reddit.subreddit(sub).controversial(limit=POST_SEARCH_AMOUNT)
+    else:
+        return ValueError
 
-def sorted_sub(sub, by = None):
-    if by:
-        return exec(f"{reddit.subreddit(sub)}.{by}(limit={POST_SEARCH_AMOUNT})")
-    return reddit.subreddit(sub).rising(limit=POST_SEARCH_AMOUNT)
 
 def download(url, name):
     if os.path.exists(video_path+name+".mp4"):
@@ -56,8 +62,7 @@ def get_from(post, sub):
             database.insert(sub, post.url, post.id, post.url)
                 
         except Exception as e:
-            print(f"failed. {post.url.lower()}")
-            print(e)
+            print(f"failed. {post.url.lower()}", " Error : ", e)
 
     # for video
     else:
@@ -74,15 +79,13 @@ def get_from(post, sub):
                 download(m3u8, f"{sub}-{post.id}")
                 database.insert(sub, post.url, post.id, m3u8)
             except Exception as e:
-                print(f"failed. {post.url.lower()}")
-                print(e)
+                print(f"failed. {post.url.lower()}", " Error : ", e)
 
 
-
-def main(by=None):
+def main():
     for line in subs:
         sub = line.strip()
-        subreddit = sorted_sub(sub, by=by)
+        subreddit = sorted_sub(sub)
         print(f"Starting {sub}!")
         database.con_table(sub)
 
