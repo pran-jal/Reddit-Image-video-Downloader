@@ -2,3 +2,7 @@ venv/
 config.py
 test.py
 *.pyc
+*.mp4
+*.jpg
+*.jpeg
+*.png
